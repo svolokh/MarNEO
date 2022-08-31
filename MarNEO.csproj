@@ -12,6 +12,7 @@
 		<Reference Include="BizHawk.Emulation.Common" HintPath="$(ProjectDir)/BizHawk/dll/BizHawk.Emulation.Common.dll" />
 		<Reference Include="BizHawk.Common" HintPath="$(ProjectDir)/BizHawk/dll/BizHawk.Common.dll" />
 		<Reference Include="BizHawk.WinForms.Controls" HintPath="$(ProjectDir)/BizHawk/dll/BizHawk.WinForms.Controls.dll" />
+		<Reference Include="Newtonsoft.Json" HintPath="$(ProjectDir)/BizHawk/dll/Newtonsoft.Json.dll" />
 	</ItemGroup>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Copy SourceFiles="$(OutputPath)$(MSBuildProjectName).dll" DestinationFolder="$(ProjectDir)/BizHawk/ExternalTools" />
