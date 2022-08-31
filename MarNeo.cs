@@ -16,15 +16,29 @@ namespace MarNEO
         private Random rng;
         private DateTime lastActionTime;
 
+        public MarNeo()
+        {
+            rng = new Random();
+            Reset();
+        }
+
         public override void Restart()
         {
+            Reset();
+        }
+
+        private void Reset()
+        {
             lastActionTime = DateTime.Now;
-            rng = new Random();
-            Hide();
         }
 
         protected override void UpdateAfter()
         {
+            if (Visible)
+            {
+                Hide(); // dialog not used
+            }
+
             var gameInfo = APIs.GameInfo.GetGameInfo();
             if (gameInfo.System != "NULL" && !APIs.EmuClient.IsPaused())
             {
