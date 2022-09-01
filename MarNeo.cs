@@ -23,6 +23,10 @@ namespace MarNEO
 
         protected override string WindowTitleStatic => "MarNeo";
 
+        private int initFrameCounter;
+        private int initStateIndex;
+        private bool initStateReached;
+
         private bool initialized;
         private int frameCounter;
 
@@ -36,13 +40,32 @@ namespace MarNEO
 
         public MarNeo()
         {
+            initFrameCounter = 0;
+            initStateIndex = 0;
+            initStateReached = false;
             initialized = false;
+            frameCounter = ACTION_INTERVAL;
             msgLenBuf = new byte[4];
             msgBuf = new byte[1024];
         }
 
         public override void Restart()
         {
+        }
+
+        private IList<(string, int)> GetInitInputSequence()
+        {
+            var gameInfo = APIs.GameInfo.GetGameInfo()!;
+            switch (gameInfo.Hash)
+            {
+                case "33D23C2F2CFA4C9EFEC87F7BC1321CE3CE6C89BD": // Super Mario Bros       
+                    return new List<(string, int)>
+                    {
+                        ("P1 Start", 100)
+                    };
+                default:
+                    return null;
+            }
         }
 
         protected override void UpdateAfter()
@@ -60,6 +83,41 @@ namespace MarNEO
                     throw new Exception("unexpected state (game should not be paused while connected)");
                 }
                 return; // not ready yet
+            }
+
+            if (!initStateReached)
+            {
+                var seq = GetInitInputSequence();
+                if (seq == null)
+                {
+                    initStateReached = true;
+                } else
+                {
+                    if (initFrameCounter < seq[initStateIndex].Item2)
+                    {
+                        ++initFrameCounter;
+                        return;
+                    } else
+                    {
+                        var pad = APIs.Joypad.Get();
+                        Dictionary<string, bool> newPad = new Dictionary<string, bool>();
+                        foreach (var key in pad.Keys)
+                        {
+                            newPad[key] = false;
+                        }
+                        newPad[seq[initStateIndex].Item1] = true;
+                        APIs.Joypad.Set(newPad);
+                        initFrameCounter = 0;
+                        ++initStateIndex;
+                        if (initStateIndex >= seq.Count)
+                        {
+                            initStateReached = true;
+                        } else
+                        {
+                            return;
+                        }
+                    }
+                }
             }
 
             --frameCounter;
