@@ -10,8 +10,9 @@ import traceback
 import json
 import marneo_env
 from marneo_env import MarneoInstanceException
+from novelty_bonus import NoveltyBonus
 
-time_limit = 300
+time_limit = 800
 num_envs = 5
 
 rom_path = None
@@ -23,7 +24,7 @@ class TrainingCallback(BaseCallback):
         self._last_ep = None
 
     def _on_step(self):
-        if self.n_calls % 3000 == 0:
+        if self.n_calls % 300 == 0:
             self.model.save(self.save_path)
         if len(self.model.ep_info_buffer) > 0 and self.model.ep_info_buffer[-1] != self._last_ep:
             ep_info = self.model.ep_info_buffer[-1]
@@ -37,6 +38,7 @@ def make_env(rom_path, port, is_training):
             identifier='env_{}'.format(port),
             rom_path=rom_path,
             port=port)        
+        env = NoveltyBonus(env)
         if is_training:
             env = TimeLimit(env, max_episode_steps=time_limit)
         return env
@@ -89,7 +91,7 @@ if __name__ == '__main__':
             break
         else:
             try:
-                model.learn(5000 * time_limit, callback=TrainingCallback(checkpoint_save_path), tb_log_name='MarNEO_PPO', reset_num_timesteps=False)
+                model.learn(500000 * time_limit, callback=TrainingCallback(checkpoint_save_path), tb_log_name='MarNEO_PPO', reset_num_timesteps=False)
                 model.save(checkpoint_save_path)
                 env.close()
                 break
