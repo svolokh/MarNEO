@@ -17,22 +17,20 @@ class MarneoInstanceException(Exception):
         super().__init__(message)
 
 class MarneoInstance:
-    def __init__(self, identifier, rom_path, host_addr):
+    def __init__(self, identifier, rom_path, host_addr, port_range):
         self._identifier = identifier
         self._rom_path = rom_path
         self._host_addr = host_addr
+        self._port_range = port_range
         self._process = None
         self._socket = None
         self._recvbuf = b''
         self._connected = False
         self._init_msg = None
 
-    @staticmethod
-    def _find_open_port():
+    def _find_open_port(self):
         used_ports = set([conn.laddr.port for conn in psutil.net_connections() if conn.status != 'TIME_WAIT'])
-        min_port = 10000
-        max_port = 30000
-        for port in range(min_port, max_port + 1):
+        for port in range(self._port_range[0], self._port_range[1] + 1):
             if port not in used_ports:
                 return port
         raise MarneoInstanceException('could not find an open port')
@@ -61,7 +59,7 @@ class MarneoInstance:
         self._socket.sendall(bmsg)
     
     def start(self):
-        self._port = MarneoInstance._find_open_port()
+        self._port = self._find_open_port()
         env = dict()
         env.update(os.environ)
         env['MARNEO_ID'] = self._identifier
@@ -141,8 +139,8 @@ class MarneoInstance:
 class MarneoEnv(gym.Env):
     metadata = {'render_modes': None}
 
-    def __init__(self, identifier, rom_path, host_addr='127.0.0.1'):
-        required_params = {'identifier', 'rom_path'}
+    def __init__(self, identifier, rom_path, port_range, host_addr='127.0.0.1'):
+        required_params = {'identifier', 'rom_path', 'port_range'}
         for param in required_params:
             if not locals()[param]:
                 raise Exception('missing required parameter \'{}\''.format(param))
@@ -151,6 +149,7 @@ class MarneoEnv(gym.Env):
         self._identifier = identifier
         self._rom_path = rom_path
         self._host_addr = host_addr
+        self._port_range = port_range
         self._game_inst = None
 
     def _parse_observation(self, observation):
@@ -162,7 +161,7 @@ class MarneoEnv(gym.Env):
                 if self._game_inst is not None:
                     self._game_inst.close()
                     self._game_inst = None
-                self._game_inst = MarneoInstance(self._identifier, self._rom_path, self._host_addr)
+                self._game_inst = MarneoInstance(self._identifier, self._rom_path, self._host_addr, self._port_range)
                 if not self._game_inst.is_started():
                     self._game_inst.start()
                 if not self._game_inst.is_connected():
