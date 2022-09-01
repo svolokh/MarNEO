@@ -32,7 +32,7 @@ class MarneoInstance:
     def _check_port_open(port):
         used_ports = set([conn.laddr.port for conn in psutil.net_connections() if conn.status != 'TIME_WAIT'])
         if port in used_ports:
-            raise Exception('port already in use')
+            raise MarneoInstanceException('port already in use')
 
     def _receive_bytes(self, n):
         while len(self._recvbuf) < n:
@@ -135,7 +135,7 @@ class MarneoInstance:
         try:
             self._process.wait(timeout=10)
         except subprocess.TimeoutExpired:
-            raise Exception('failed to terminate game process')
+            raise MarneoInstanceException('failed to terminate game process')
 
 class MarneoEnv(gym.Env):
     metadata = {'render_modes': None}
