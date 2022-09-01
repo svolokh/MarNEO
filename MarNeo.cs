@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Windows.Forms;
 using System.Xml.Linq;
 using BizHawk.Client.Common;
 using BizHawk.Client.EmuHawk;
@@ -38,6 +39,8 @@ namespace MarNEO
         private byte[] msgLenBuf;
         byte[] msgBuf;
 
+        private NumericTextBox textBox;
+
         public MarNeo()
         {
             initFrameCounter = 0;
@@ -51,6 +54,8 @@ namespace MarNEO
 
         public override void Restart()
         {
+            
+
         }
 
         private IList<(string, int)> GetInitInputSequence()
@@ -70,11 +75,6 @@ namespace MarNEO
 
         protected override void UpdateAfter()
         {
-            if (Visible)
-            {
-                Hide(); // dialog not used
-            }
-
             var gameInfo = APIs.GameInfo.GetGameInfo();
             if (gameInfo.System == "NULL" || APIs.EmuClient.IsPaused())
             {
@@ -161,7 +161,6 @@ namespace MarNEO
             }
 
             IList<float> obs;
-            DateTime now = DateTime.Now;
             if (firstTime || frameCounter == 0)
             {
                 if (!firstTime)
@@ -225,6 +224,8 @@ namespace MarNEO
 
         private void PerformAction(int actionId)
         {
+            textBox.Text = actionId.ToString();
+
             if (actionId == 0)
             {
                 // do nothing
