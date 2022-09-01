@@ -10,8 +10,7 @@ import sys
 rom_path = sys.argv[1]
 env = gym.make('marneo/MarneoEnv-v0',
     identifier='env_random',
-    rom_path=rom_path,
-    port=14000)
+    rom_path=rom_path)
 env = NoveltyBonus(env)
 env = TimeLimit(env, max_episode_steps=300)
 try:

@@ -17,11 +17,10 @@ class MarneoInstanceException(Exception):
         super().__init__(message)
 
 class MarneoInstance:
-    def __init__(self, identifier, rom_path, host_addr, port):
+    def __init__(self, identifier, rom_path, host_addr):
         self._identifier = identifier
         self._rom_path = rom_path
         self._host_addr = host_addr
-        self._port = port
         self._process = None
         self._socket = None
         self._recvbuf = b''
@@ -29,10 +28,14 @@ class MarneoInstance:
         self._init_msg = None
 
     @staticmethod
-    def _check_port_open(port):
+    def _find_open_port():
         used_ports = set([conn.laddr.port for conn in psutil.net_connections() if conn.status != 'TIME_WAIT'])
-        if port in used_ports:
-            raise MarneoInstanceException('port already in use')
+        min_port = 10000
+        max_port = 30000
+        for port in range(min_port, max_port + 1):
+            if port not in used_ports:
+                return port
+        raise MarneoInstanceException('could not find an open port')
 
     def _receive_bytes(self, n):
         while len(self._recvbuf) < n:
@@ -58,7 +61,7 @@ class MarneoInstance:
         self._socket.sendall(bmsg)
     
     def start(self):
-        MarneoInstance._check_port_open(self._port)
+        self._port = MarneoInstance._find_open_port()
         env = dict()
         env.update(os.environ)
         env['MARNEO_ID'] = self._identifier
@@ -113,9 +116,6 @@ class MarneoInstance:
         assert self.is_connected() and self.is_initialized()
         return self._receive_message()
 
-    def get_port(self):
-        return self._port
-
     def is_started(self):
         return self._process is not None
 
@@ -131,17 +131,18 @@ class MarneoInstance:
     def close(self):
         if self._socket is not None:
             self._socket.close()
-        self._process.kill()
-        try:
-            self._process.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            raise MarneoInstanceException('failed to terminate game process')
+        if self._process is not None:
+            self._process.kill()
+            try:
+                self._process.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                raise MarneoInstanceException('failed to terminate game process')
 
 class MarneoEnv(gym.Env):
     metadata = {'render_modes': None}
 
-    def __init__(self, identifier, rom_path, port, host_addr='127.0.0.1'):
-        required_params = {'identifier', 'rom_path', 'port'}
+    def __init__(self, identifier, rom_path, host_addr='127.0.0.1'):
+        required_params = {'identifier', 'rom_path'}
         for param in required_params:
             if not locals()[param]:
                 raise Exception('missing required parameter \'{}\''.format(param))
@@ -150,7 +151,6 @@ class MarneoEnv(gym.Env):
         self._identifier = identifier
         self._rom_path = rom_path
         self._host_addr = host_addr
-        self._game_port = port
         self._game_inst = None
 
     def _parse_observation(self, observation):
@@ -162,7 +162,7 @@ class MarneoEnv(gym.Env):
                 if self._game_inst is not None:
                     self._game_inst.close()
                     self._game_inst = None
-                self._game_inst = MarneoInstance(self._identifier, self._rom_path, self._host_addr, self._game_port)
+                self._game_inst = MarneoInstance(self._identifier, self._rom_path, self._host_addr)
                 if not self._game_inst.is_started():
                     self._game_inst.start()
                 if not self._game_inst.is_connected():

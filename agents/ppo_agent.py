@@ -32,12 +32,11 @@ class TrainingCallback(BaseCallback):
             self.logger.dump(step=self.num_timesteps)
             self._last_ep = ep_info
 
-def make_env(rom_path, port, is_training):
+def make_env(rom_path, id, is_training):
     def _init():
         env = gym.make('marneo/MarneoEnv-v0',
-            identifier='env_{}'.format(port),
-            rom_path=rom_path,
-            port=port)        
+            identifier='env_{}'.format(id),
+            rom_path=rom_path)        
         env = NoveltyBonus(env)
         if is_training:
             env = TimeLimit(env, max_episode_steps=time_limit)
@@ -56,21 +55,20 @@ if __name__ == '__main__':
 
     checkpoint_save_path = os.path.join(os.getcwd(), 'checkpoint')
     while True:
-        start_port = 12000
         model_args = dict(policy_kwargs=dict(net_arch=[128, 128]),
                           n_steps=time_limit,
                           verbose=1)
         if args.is_predict:
             nenvs = 1
-            env = make_env(rom_path, start_port, False)()
+            env = make_env(rom_path, 1, False)()
         else:
             dbg_env = False
             if dbg_env:
                 nenvs = 1
-                env = make_env(rom_path, start_port, True)()
+                env = make_env(rom_path, 1, True)()
             else:
                 nenvs = num_envs
-                env = VecMonitor(SubprocVecEnv([make_env(rom_path, start_port + i, True) for i in range(nenvs)]))
+                env = VecMonitor(SubprocVecEnv([make_env(rom_path, i + 1, True) for i in range(nenvs)]))
                 model_args['tensorboard_log'] = './tboard_results'
         
         chkpt_path = checkpoint_save_path + '.zip'
