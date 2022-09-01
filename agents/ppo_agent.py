@@ -11,7 +11,7 @@ import json
 import marneo_env
 from marneo_env import MarneoInstanceException
 
-time_limit = 500
+time_limit = 300
 num_envs = 5
 
 rom_path = None

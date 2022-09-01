@@ -188,6 +188,7 @@ class MarneoEnv(gym.Env):
         else:
             observation = np.zeros(self.observation_space.shape)
         info = self._get_info()
+        info['screenshotPath'] = msg['screenshotPath']
         return observation, reward, done, info
 
     def close(self):

@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.IO;
 using System.Text;
+using System.Web;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using BizHawk.Client.Common;
@@ -17,7 +19,7 @@ namespace MarNEO
     [ExternalTool("MarNeo")]
     public class MarNeo : ToolFormBase, IExternalToolForm
     {
-        public const int ACTION_INTERVAL = 3; // frames
+        public const int ACTION_INTERVAL = 10; // frames
 
         public ApiContainer? _maybeAPIContainer { get; set; }
         private ApiContainer APIs => _maybeAPIContainer!;
@@ -39,8 +41,6 @@ namespace MarNEO
         private byte[] msgLenBuf;
         byte[] msgBuf;
 
-        private NumericTextBox textBox;
-
         public MarNeo()
         {
             initFrameCounter = 0;
@@ -54,8 +54,6 @@ namespace MarNEO
 
         public override void Restart()
         {
-            
-
         }
 
         private IList<(string, int)> GetInitInputSequence()
@@ -73,8 +71,21 @@ namespace MarNEO
             }
         }
 
+        private string MakeScreenshot()
+        {
+            var screenshot = ((MainForm)MainForm).MakeScreenshotImage();
+            string path = envId + ".png";
+            screenshot.ToSysdrawingBitmap().Save(path);
+            return Path.GetFullPath(path);
+        }
+
         protected override void UpdateAfter()
         {
+            if (Visible)
+            {
+                Hide();
+            }
+
             var gameInfo = APIs.GameInfo.GetGameInfo();
             if (gameInfo.System == "NULL" || APIs.EmuClient.IsPaused())
             {
@@ -126,7 +137,7 @@ namespace MarNEO
             if (!initialized)
             {
                 // this can be used to control the speed of the emulation
-                APIs.EmuClient.SpeedMode(100);
+                APIs.EmuClient.SpeedMode(1000);
 
                 envId = Environment.GetEnvironmentVariable("MARNEO_ID");
                 string envAddr = Environment.GetEnvironmentVariable("MARNEO_ADDR");
@@ -170,11 +181,14 @@ namespace MarNEO
                     bool done;
                     EvaluateAction(out reward, out done);
 
+                    string screenshotPath = MakeScreenshot();
+
                     if (done)
                     {
                         SendMessage(new
                         {
                             reward = reward,
+                            screenshotPath = screenshotPath,
                             done = true
                         });
                     } else
@@ -184,6 +198,7 @@ namespace MarNEO
                         {
                             observation = obs,
                             reward = reward,
+                            screenshotPath = screenshotPath,
                             done = false
                         });
                     }
@@ -224,8 +239,6 @@ namespace MarNEO
 
         private void PerformAction(int actionId)
         {
-            textBox.Text = actionId.ToString();
-
             if (actionId == 0)
             {
                 // do nothing
@@ -235,7 +248,7 @@ namespace MarNEO
             // if you change the number of actions you must update action_space in the python script
 
             const int MIN_ACTION_ADDR = 0x1;
-            const int MAX_ACTION_ADDR = 0x100;
+            const int MAX_ACTION_ADDR = 0x200;
 
             int targetAddr = MIN_ACTION_ADDR + (actionId - 1);
             if (targetAddr < MIN_ACTION_ADDR || targetAddr > MAX_ACTION_ADDR)
