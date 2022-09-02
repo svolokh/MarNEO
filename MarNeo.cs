@@ -221,7 +221,7 @@ namespace MarNEO
                     APIs.EmuClient.SpeedMode(1000); // speed up emulation when training
                 } else
                 {
-                    APIs.EmuClient.SpeedMode(100);
+                    APIs.EmuClient.SpeedMode(500);
                 }
 
                 IPAddress ipAddress = IPAddress.Parse(envAddr);
