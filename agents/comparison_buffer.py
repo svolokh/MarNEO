@@ -5,16 +5,16 @@ from typing import List, Any
 from skimage.metrics import structural_similarity
 import torch
 
-from torchmetrics import StructuralSimilarityIndexMeasure
-from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
+# from torchmetrics import StructuralSimilarityIndexMeasure
+#from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
 
 
 class ComparisonBuffer(object):
     def __init__(self, capacity: int) -> None:
         self.buffer = deque([], maxlen=capacity)
         self.mse_loss = torch.nn.MSELoss()
-        self.ssim = StructuralSimilarityIndexMeasure()
-        self.lpip = LearnedPerceptualImagePatchSimilarity(net_type='vgg')
+        # self.ssim = StructuralSimilarityIndexMeasure()
+        # self.lpip = LearnedPerceptualImagePatchSimilarity(net_type='vgg')
 
     def push(self,
              state: Any) -> None:
