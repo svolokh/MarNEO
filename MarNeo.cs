@@ -13,6 +13,7 @@ using BizHawk.Client.Common;
 using BizHawk.Client.EmuHawk;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using BizHawk.Emulation.Common;
 
 namespace MarNEO
 {
@@ -66,6 +67,19 @@ namespace MarNEO
                     {
                         ("P1 Start", 100)
                     };
+                case "4671517D72D09799403F6C672CD2B395933E926E": // Legend of Zelda
+                    return new List<(string, int)>
+                    {
+                        ("P1 Start", 100),
+                        ("P1 Start", 100),
+                        ("P1 A", 200),
+                        ("P1 Start", 100),
+                        ("P1 Select", 100),
+                        ("P1 Select", 100),
+                        ("P1 Select", 100),
+                        ("P1 Start", 100),
+                        ("P1 Start", 100)
+                    };
                 default:
                     return null;
             }
@@ -84,6 +98,13 @@ namespace MarNEO
             if (Visible)
             {
                 Hide();
+            }
+
+            var config = ((MainForm)MainForm).Config;
+            if (config != null)
+            {
+                config.AutosaveSaveRAM = false;
+                config.BackupSaveram = false;
             }
 
             var gameInfo = APIs.GameInfo.GetGameInfo();

@@ -65,6 +65,13 @@ class MarneoInstance:
         env['MARNEO_ID'] = self._identifier
         env['MARNEO_ADDR'] = self._host_addr
         env['MARNEO_PORT'] = str(self._port)
+
+        # clear any existing save data
+        saveDir = os.path.join(BIZHAWK_BASEDIR, 'NES', 'SaveRAM')
+        if os.path.exists(saveDir):
+            for f in os.listdir(saveDir):
+                os.remove(os.path.join(saveDir, f))
+        
         self._process = subprocess.Popen([
             EMUHAWK_PATH,
             '--open-ext-tool-dll=MarNEO',
