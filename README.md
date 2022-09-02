@@ -1,16 +1,11 @@
 # MarNEO
 
-https://www.youtube.com/watch?v=rSbV2c8Yd84
+Youtube demo for the project (click image below):
 
+[![Marneo](https://img.youtube.com/vi/rSbV2c8Yd84/0.jpg)](https://www.youtube.com/watch?v=rSbV2c8Yd84 "MarNEO")
+
+# Context
 In traditional arcade game playing, the agent interacts with the game by simulating valid controller inputs. MarNEO is a twist on this: it is a reinforcement learning based agent for Nintendo (NES) games which can modify the game's internal memory directly to achieve its objectives! We implemented a gym environment that integrates with the BizHawk emulator to accomplish this and conducted experiments with various reward functions.
-
-## Requirements
-
-- Visual Studio 2022
-- Python 3.7 (or later but pretrained versions might not work in later versions)
-- A Nintendo Rom Image (NES File) for each game you want to play
-
-*Building was only tested in Windows 10/11.*
 
 
 ## Reinforcement Learning Environment
@@ -32,6 +27,13 @@ We exhibit the trained RL agents on different games:
 
 We have also implemented a graphical user interface used for action visualization.
 
+## Requirements
+
+- Visual Studio 2022
+- Python 3.7 (or later but pretrained versions might not work in later versions)
+- A Nintendo Rom Image (NES File) for each game you want to play
+
+*Building was only tested in Windows 10/11.*
 
 ## Installation
 
