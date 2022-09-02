@@ -6,8 +6,9 @@ In traditional arcade game playing, the agent interacts with the game by simulat
 
 - Visual Studio 2022
 - Python 3.7 (or later but pretrained versions might not work in later versions)
-- A Nientedo Rom Image (NES File) for each game you want to play
-Testing only in Windows 10/11
+- A Nintendo Rom Image (NES File) for each game you want to play
+
+*Building was only tested in Windows 10/11.*
 
 ## Installation
 
@@ -16,8 +17,7 @@ git clone https://github.com/GameAISchool2022members/MarNEO
 
 cd ./MarNEO/agents
 
-pip install -r requiremnts.txt
-
+pip install -r requiremnts.txt\
 ```
 
 ## Running
@@ -32,15 +32,15 @@ python random_agents.py path_to_your_rom_file_.nes
 PlaceHolder command
 ```
 
-
 ## Training
 ```
 Placeholder Training
 ```
 
 ## Ressources
-BizHawak, a multi-system emulator written in C#: https://github.com/TASEmulators/BizHawk
-RAM Map showing the data stored in a system's RAM
+- BizHawak, a multi-system emulator written in C#: https://github.com/TASEmulators/BizHawk
+- RAM Map showing the data stored in a system's RAM: https://datacrystal.romhacking.net/wiki/Category:RAM_maps
+  - E.g. for Mario Bros: https://datacrystal.romhacking.net/wiki/Super_Mario_Bros.:RAM_map
 
 ## Authors
 Sasha Volokh 
