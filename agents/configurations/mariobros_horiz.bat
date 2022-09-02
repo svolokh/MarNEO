@@ -1,0 +1,2 @@
+cd ..
+python .\ppo_agent.py --predict "C:\Users\sasha-usc\Documents\GameAISchool22\GameAIJam\Super Mario Bros. (World).nes" --reward_mode 1 --novelty_bonus false --copy_checkpoint .\results\mariobros-horiz\checkpoint.zip
