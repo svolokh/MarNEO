@@ -5,9 +5,42 @@ In traditional arcade game playing, the agent interacts with the game by simulat
 ## Requirements
 
 - Visual Studio 2022
-- Python 3.7
-- pytorch
-- all other Python modules in agents/requirements.txt
+- Python 3.7 (or later but pretrained versions might not work in later versions)
+- A Nientedo Rom Image (NES File) for each game you want to play
+Testing only in Windows 10/11
+
+## Installation
+
+```
+git clone https://github.com/GameAISchool2022members/MarNEO
+
+cd ./MarNEO/agents
+
+pip install -r requiremnts.txt
+
+```
+
+## Running
+
+### Random Agent
+```
+python random_agents.py path_to_your_rom_file_.nes
+```
+
+### Pretrained Model
+```
+PlaceHolder command
+```
+
+
+## Training
+```
+Placeholder Training
+```
+
+## Ressources
+BizHawak, a multi-system emulator written in C#: https://github.com/TASEmulators/BizHawk
+RAM Map showing the data stored in a system's RAM
 
 ## Authors
 Sasha Volokh 
