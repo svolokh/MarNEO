@@ -82,9 +82,18 @@ namespace MarNEO
                 buttons[i].BackColor = System.Drawing.Color.White;
                 buttons[i].Text = "0";
                 buttons[i].Enabled = true;
+                
+                buttons[i].Click += new EventHandler(button_Click);
 
-                Controls.Add(buttons[i]);
+                Controls.Add(buttons[i]); 
             }
+        }
+        
+        private void button_Click(object sender, EventArgs e)
+        {
+            var buttonName = ((Button)sender).Name;
+            string test = Int32.Parse(buttonName).ToString("X");
+            MessageBox.Show("0x00"+test);
         }
 
         public override void Restart()
