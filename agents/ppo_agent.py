@@ -37,7 +37,8 @@ def make_env(rom_path, id, is_training):
         env = gym.make('marneo/MarneoEnv-v0',
             identifier='env_{}'.format(id),
             port_range=(12000 + (id-1)*5000, 12000 + id*5000),
-            rom_path=rom_path)
+            rom_path=rom_path,
+            is_training=is_training)
         if is_training:
             env = NoveltyBonus(env)
             env = TimeLimit(env, max_episode_steps=time_limit)

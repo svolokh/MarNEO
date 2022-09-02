@@ -38,6 +38,7 @@ namespace MarNEO
         private Socket listenerSocket;
         private Socket clientSocket;
         private string envId;
+        private bool isTraining;
 
         private byte[] msgLenBuf;
         byte[] msgBuf;
@@ -157,13 +158,11 @@ namespace MarNEO
             bool firstTime = false;
             if (!initialized)
             {
-                // this can be used to control the speed of the emulation
-                APIs.EmuClient.SpeedMode(1000);
-
                 envId = Environment.GetEnvironmentVariable("MARNEO_ID");
                 string envAddr = Environment.GetEnvironmentVariable("MARNEO_ADDR");
                 string envPort = Environment.GetEnvironmentVariable("MARNEO_PORT");
-                if (envId == null || envAddr == null || envPort == null)
+                string envTraining = Environment.GetEnvironmentVariable("MARNEO_IS_TRAINING");
+                if (envId == null || envAddr == null || envPort == null || envTraining == null)
                 {
                     throw new Exception("missing required env vars");
                 }
@@ -171,7 +170,17 @@ namespace MarNEO
                 {
                     throw new Exception("Invalid MARNEO_PORT");
                 }
-                Console.WriteLine("hosting " + envId + " on " + envAddr + ":" + envPort);
+
+                isTraining = bool.Parse(envTraining);
+
+                if (isTraining)
+                {
+                    APIs.EmuClient.SpeedMode(1000); // speed up emulation when training
+                } else
+                {
+                    APIs.EmuClient.SpeedMode(100);
+                }
+
                 IPAddress ipAddress = IPAddress.Parse(envAddr);
                 IPEndPoint localEndPoint = new IPEndPoint(ipAddress, listenPort);
                 listenerSocket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
