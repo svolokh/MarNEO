@@ -17,7 +17,7 @@ class MarneoInstanceException(Exception):
         super().__init__(message)
 
 class MarneoInstance:
-    def __init__(self, identifier, rom_path, host_addr, port_range, is_training):
+    def __init__(self, identifier, rom_path, host_addr, port_range, is_training, reward_mode):
         self._identifier = identifier
         self._rom_path = rom_path
         self._host_addr = host_addr
@@ -28,6 +28,7 @@ class MarneoInstance:
         self._connected = False
         self._init_msg = None
         self._is_training = is_training
+        self._reward_mode = reward_mode
 
     def _find_open_port(self):
         used_ports = set([conn.laddr.port for conn in psutil.net_connections() if conn.status != 'TIME_WAIT'])
@@ -67,6 +68,7 @@ class MarneoInstance:
         env['MARNEO_ADDR'] = self._host_addr
         env['MARNEO_PORT'] = str(self._port)
         env['MARNEO_IS_TRAINING'] = 'true' if self._is_training else 'false'
+        env['MARNEO_REWARD_MODE'] = str(self._reward_mode)
 
         # clear any existing save data
         saveDir = os.path.join(BIZHAWK_BASEDIR, 'NES', 'SaveRAM')
@@ -148,7 +150,7 @@ class MarneoInstance:
 class MarneoEnv(gym.Env):
     metadata = {'render_modes': None}
 
-    def __init__(self, identifier, rom_path, port_range, host_addr='127.0.0.1', is_training=True):
+    def __init__(self, identifier, rom_path, port_range, host_addr='127.0.0.1', is_training=True, reward_mode=0):
         required_params = {'identifier', 'rom_path', 'port_range'}
         for param in required_params:
             if not locals()[param]:
@@ -160,6 +162,7 @@ class MarneoEnv(gym.Env):
         self._host_addr = host_addr
         self._port_range = port_range
         self._is_training = is_training
+        self._reward_mode = reward_mode
         self._game_inst = None
 
     def _parse_observation(self, observation):
@@ -171,7 +174,7 @@ class MarneoEnv(gym.Env):
                 if self._game_inst is not None:
                     self._game_inst.close()
                     self._game_inst = None
-                self._game_inst = MarneoInstance(self._identifier, self._rom_path, self._host_addr, self._port_range, self._is_training)
+                self._game_inst = MarneoInstance(self._identifier, self._rom_path, self._host_addr, self._port_range, self._is_training, self._reward_mode)
                 if not self._game_inst.is_started():
                     self._game_inst.start()
                 if not self._game_inst.is_connected():

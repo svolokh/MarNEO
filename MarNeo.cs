@@ -41,6 +41,10 @@ namespace MarNEO
         private Socket clientSocket;
         private string envId;
         private bool isTraining;
+        private int rewardMode;
+
+        private uint lastLevelHorizPos;
+        private uint lastScreenHorizPos;
 
         private byte[] msgLenBuf;
         byte[] msgBuf;
@@ -53,6 +57,9 @@ namespace MarNEO
             initStateIndex = 0;
             initStateReached = false;
             initialized = false;
+            rewardMode = 0;
+            lastLevelHorizPos = 0;
+            lastScreenHorizPos = 0;
             frameCounter = ACTION_INTERVAL;
             msgLenBuf = new byte[4];
             msgBuf = new byte[1024];
@@ -196,7 +203,8 @@ namespace MarNEO
                 string envAddr = Environment.GetEnvironmentVariable("MARNEO_ADDR");
                 string envPort = Environment.GetEnvironmentVariable("MARNEO_PORT");
                 string envTraining = Environment.GetEnvironmentVariable("MARNEO_IS_TRAINING");
-                if (envId == null || envAddr == null || envPort == null || envTraining == null)
+                string envRewardMode = Environment.GetEnvironmentVariable("MARNEO_REWARD_MODE");
+                if (envId == null || envAddr == null || envPort == null || envTraining == null || envRewardMode == null)
                 {
                     throw new Exception("missing required env vars");
                 }
@@ -206,6 +214,7 @@ namespace MarNEO
                 }
 
                 isTraining = bool.Parse(envTraining);
+                rewardMode = int.Parse(envRewardMode);
 
                 if (isTraining)
                 {
@@ -355,9 +364,30 @@ namespace MarNEO
 
         private void EvaluateAction(out float reward, out bool done)
         {
-            // TODO
-            reward = 0.0f;
-            done = false;
+            switch (rewardMode)
+            {
+                case 1: // mario horizontal position
+                    {
+                        uint levelHorizPos = APIs.Memory.ReadByte(0x6D);
+                        uint screenHorizPos = APIs.Memory.ReadByte(0x86);
+                        if (levelHorizPos > lastLevelHorizPos || screenHorizPos > lastScreenHorizPos)
+                        {
+                            reward = 1.0f;
+                            done = false;
+                        } else
+                        {
+                            reward = 0.0f;
+                            done = false;
+                        }
+                        lastLevelHorizPos = levelHorizPos;
+                        lastScreenHorizPos = screenHorizPos;
+                    }
+                    break;
+                default:
+                    reward = 0.0f;
+                    done = false;
+                    break;
+            }
         }
 
         private void SendMessage(object msg)

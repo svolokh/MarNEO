@@ -33,15 +33,17 @@ class TrainingCallback(BaseCallback):
             self.logger.dump(step=self.num_timesteps)
             self._last_ep = ep_info
 
-def make_env(rom_path, id, is_training):
+def make_env(rom_path, id, is_training, reward_mode, have_novelty_bonus):
     def _init():
         env = gym.make('marneo/MarneoEnv-v0',
             identifier='env_{}'.format(id),
             port_range=(12000 + (id-1)*5000, 12000 + id*5000),
             rom_path=rom_path,
-            is_training=is_training)
+            is_training=is_training,
+            reward_mode=reward_mode)
         if is_training:
-            env = NoveltyBonus(env)
+            if have_novelty_bonus:
+                env = NoveltyBonus(env)
             env = TimeLimit(env, max_episode_steps=time_limit)
         return env
     return _init
@@ -53,9 +55,13 @@ if __name__ == '__main__':
     parser.add_argument('rom_path', metavar='P')
     parser.add_argument('--predict', dest='is_predict', default=False, action='store_true')
     parser.add_argument('--copy_checkpoint', dest='copy_checkpoint', default=None)
+    parser.add_argument('--reward_mode', dest='reward_mode', default='0')
+    parser.add_argument('--novelty_bonus', dest='have_novelty_bonus', default='true')
     args = parser.parse_args()
 
     rom_path = args.rom_path
+    reward_mode = int(args.reward_mode)
+    have_novelty_bonus = True if args.have_novelty_bonus == 'true' else False
 
     checkpoint_save_path = os.path.join(os.getcwd(), 'checkpoint')
 
@@ -68,15 +74,15 @@ if __name__ == '__main__':
                           verbose=1)
         if args.is_predict:
             nenvs = 1
-            env = make_env(rom_path, 1, False)()
+            env = make_env(rom_path, 1, False, reward_mode, have_novelty_bonus)()
         else:
             dbg_env = False
             if dbg_env:
                 nenvs = 1
-                env = make_env(rom_path, 1, True)()
+                env = make_env(rom_path, 1, True, reward_mode, have_novelty_bonus)()
             else:
                 nenvs = num_envs
-                env = VecMonitor(SubprocVecEnv([make_env(rom_path, i + 1, True) for i in range(nenvs)]))
+                env = VecMonitor(SubprocVecEnv([make_env(rom_path, i + 1, True, reward_mode, have_novelty_bonus) for i in range(nenvs)]))
                 model_args['tensorboard_log'] = './tboard_results'
         
         chkpt_path = checkpoint_save_path + '.zip'
