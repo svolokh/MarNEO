@@ -6,6 +6,7 @@ from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
 from torch.distributions import Distribution
 import os.path
+import shutil
 import traceback
 import json
 import marneo_env
@@ -51,11 +52,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('rom_path', metavar='P')
     parser.add_argument('--predict', dest='is_predict', default=False, action='store_true')
+    parser.add_argument('--copy_checkpoint', dest='copy_checkpoint', default=None)
     args = parser.parse_args()
 
     rom_path = args.rom_path
 
     checkpoint_save_path = os.path.join(os.getcwd(), 'checkpoint')
+
+    if args.copy_checkpoint is not None:
+        shutil.copy(args.copy_checkpoint, checkpoint_save_path + '.zip')
+
     while True:
         model_args = dict(policy_kwargs=dict(net_arch=[128, 128]),
                           n_steps=time_limit,
