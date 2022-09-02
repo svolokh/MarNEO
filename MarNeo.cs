@@ -86,6 +86,14 @@ namespace MarNEO
                     {
                         ("P1 Start", 500)
                     };
+                case "3026D28B63D94C921FE58364F8B0659D10B5A0AC": // Tetris
+                    return new List<(string, int)>
+                    {
+                        ("P1 Start", 300),
+                        ("P1 Start", 100),
+                        ("P1 Start", 100),
+                        ("P1 Start", 100)
+                    };
                 default:
                     return null;
             }
