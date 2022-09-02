@@ -10,9 +10,14 @@ In traditional arcade game playing, the agent interacts with the game by simulat
 - all other Python modules in agents/requirements.txt
 
 ## Authors
-Sasha Volokh
+Sasha Volokh 
+
 Nemanja Rasajski
+
 Sylvain Lapeyrade
+
 Lefteris Ioannou
+
 Robert Xu
+
 Christos Davillas
