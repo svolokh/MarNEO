@@ -81,6 +81,11 @@ namespace MarNEO
                         ("P1 Start", 100),
                         ("P1 Start", 100)
                     };
+                case "EF76CEBDDC57B7C96CFC95B55DCC712FD5934B2C": // Pac-Man
+                    return new List<(string, int)>
+                    {
+                        ("P1 Start", 500)
+                    };
                 default:
                     return null;
             }
