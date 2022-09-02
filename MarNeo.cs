@@ -278,7 +278,7 @@ namespace MarNEO
             // if you change the number of actions you must update action_space in the python script
 
             const int MIN_ACTION_ADDR = 0x1;
-            const int MAX_ACTION_ADDR = 0x200;
+            const int MAX_ACTION_ADDR = 0x100;
 
             int targetAddr = MIN_ACTION_ADDR + (actionId - 1);
             if (targetAddr < MIN_ACTION_ADDR || targetAddr > MAX_ACTION_ADDR)
