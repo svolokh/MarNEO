@@ -38,8 +38,8 @@ def make_env(rom_path, id, is_training):
             identifier='env_{}'.format(id),
             port_range=(12000 + (id-1)*5000, 12000 + id*5000),
             rom_path=rom_path)
-        env = NoveltyBonus(env)
         if is_training:
+            env = NoveltyBonus(env)
             env = TimeLimit(env, max_episode_steps=time_limit)
         return env
     return _init
