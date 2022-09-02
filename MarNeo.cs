@@ -14,6 +14,8 @@ using BizHawk.Client.EmuHawk;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using BizHawk.Emulation.Common;
+using BizHawk.Common.NumberExtensions;
+using System.Drawing;
 
 namespace MarNEO
 {
@@ -43,6 +45,8 @@ namespace MarNEO
         private byte[] msgLenBuf;
         byte[] msgBuf;
 
+        Button[] buttons = new Button[0x100];
+
         public MarNeo()
         {
             initFrameCounter = 0;
@@ -52,6 +56,28 @@ namespace MarNEO
             frameCounter = ACTION_INTERVAL;
             msgLenBuf = new byte[4];
             msgBuf = new byte[1024];
+
+            InitForm();
+        }
+
+        private void InitForm()
+        {
+            Size = new Size(1060, 1100);
+
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                int buttonSize = 64;
+
+                float y = i / 16;
+                buttons[i] = new Button();
+                buttons[i].Size = new Size(buttonSize, buttonSize);
+                buttons[i].Location = new Point((i % 16) * buttonSize, Math.Truncate(y).RoundToInt() * buttonSize);
+                buttons[i].BackColor = System.Drawing.Color.White;
+                buttons[i].Text = "0";
+                buttons[i].Enabled = true;
+
+                Controls.Add(buttons[i]);
+            }
         }
 
         public override void Restart()
@@ -109,11 +135,6 @@ namespace MarNEO
 
         protected override void UpdateAfter()
         {
-            if (Visible)
-            {
-                Hide();
-            }
-
             var config = ((MainForm)MainForm).Config;
             if (config != null)
             {
@@ -301,6 +322,28 @@ namespace MarNEO
             }
             uint nextVal = (APIs.Memory.ReadByte(targetAddr) + 1u) % 256u;
             APIs.Memory.WriteByte(targetAddr, nextVal);
+
+            UpdateVisual(actionId);
+        }
+
+        private void UpdateVisual(int actionId)
+        {
+            buttons[actionId - 1].BackColor = System.Drawing.Color.Black;
+
+            int buttonvalue = Int32.Parse(buttons[actionId - 1].Text) + 1;
+            buttons[actionId - 1].Text = buttonvalue.ToString();
+
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                int aValue = Int32.Parse(buttons[i].Text) * 5;
+
+                if (aValue > 255)
+                    aValue = 255;
+
+                buttons[i].BackColor = System.Drawing.Color.FromArgb(aValue, 0, 0, 0);
+            }
+
+            buttons[actionId - 1].BackColor = System.Drawing.Color.Red;
         }
 
         private IList<float> CollectObservations()
